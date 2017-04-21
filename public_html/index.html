@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="assests/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+        <script class="jsbin" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+        <script class="jsbin" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
+        <style>
+       
+        </style>
+    </head>
+    <body>
+        <canvas id="myCanvas" width="500" height="400"></canvas>
+        <button onclick="resetToBlur()">gaussion filter</button>
+        <canvas id="outPutCanvas" width="500" height="400"></canvas>
+        <script type="text/javascript" src="assests/jquery-3.1.1.min.js"></script>
+	<script type="text/javascript" src="assests/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+        <script type="text/javascript">
+          window.onload = function() {
+                var canvas =document.getElementById('myCanvas')
+                var context = canvas.getContext("2d");
+                 var image = new Image();
+               image.src = "2.jpg";
+               
+                image.onload = function() {
+                    var hRatio = canvas.width  / image.width    ;
+                var vRatio =  canvas.height / image.height  ;
+                var ratio;
+                if(hRatio < vRatio)
+                    ratio = hRatio;
+                else
+                    ratio = vRatio;
+                var centerShift_x = ( canvas.width - image.width*ratio ) / 2;
+                var centerShift_y = ( canvas.height - image.height*ratio ) / 2;
+                context.clearRect(0,0,canvas.width, canvas.height);
+                    context.drawImage(image, 0, 0, image.width, image.height, 
+                    centerShift_x,centerShift_y,image.width*ratio, image.height*ratio);
+                };
+            };
+          function chinhMau()
+          {
+              var canvas = document.getElementById('outPutCanvas');
+              var context = canvas.getContext('2d');
+              var image = document.getElementById('myCanvas');
+              context.drawImage(image,0,0);
+              context.drawImage(image,image.width,0);
+              var imageData =context.getImageData(0,0, image.width, image.height);
+              var data = imageData.data;
+              var key = ["0", "1", "1", "1", "4", "1", "1", "1", "1"];
+              var index = [];
+              var h = canvas.width * 4;
+              var r = canvas.height;
+              var row = 0;
+              var col = 0;
+              var vga1, vga2, vga3, vga4;
+              for(var i = 0 ;i < data.length; i+= 4)
+              {
+                    if(row == 0)
+                    {
+                    if(col == 0)
+                    {
+                        index[0] =0;
+                        index[1] =0;
+                        index[2] =0;
+                        index[3] =0;
+                        index[4] = data[i];
+                        index[5] = data[i + 1];
+                        index[6] = 0;
+                        index[7] = data[h];
+                        index[8] = data[h + 1];
+                    }
+                    if(col == h - 1)
+                    {
+                        index[0] =0;
+                        index[1] =0;
+                        index[2] =0;
+                        index[3] = data[i - 1];
+                        index[4] = data[i];
+                        index[5] = 0;
+                        index[6] = data[h + col -1];
+                        index[7] = data[2*h - 1];
+                        index[8] = data[0];
+                    }
+                    if(col > 0 && col < h - 1)
+                    {
+                        index[0] =0;
+                        index[1] =0;
+                        index[2] =0;
+                        index[3] = data[i -1];
+                        index[4] = data[i];
+                        index[5] = data[i + 1];
+                        index[6] = data[h + col - 1];
+                        index[7] = data[h + col];
+                        index[8] = data[h + col + 1];
+                    }
+                    }
+                    if(row == r - 1)
+                    {
+                        if(col == 0)
+                        {
+                            index[0] =0;
+                            index[1] = data[i - h];
+                            index[2] = data[i - h + 1];
+                            index[3] = 0;
+                            index[4] = data[i];
+                            index[5] = data[i+1];
+                            index[6] = 0;
+                            index[7] = 0;
+                            index[8] = 0;
+                        }
+                        if(col == h - 1)
+                        {
+                            index[0] =data[i - h - 1];
+                            index[1] = data[i - h];
+                            index[2] = 0;
+                            index[3] = data[i - 1];
+                            index[4] = data[i];
+                            index[5] = 0;
+                            index[6] = 0;
+                            index[7] = 0;
+                            index[8] = 0;
+                        }
+                        if(col > 0 && col < h - 1)
+                        {
+                            index[0] =data[i - h - 1];
+                            index[1] = data[i - h];
+                            index[2] = data[i - h + 1];
+                            index[3] = data[i - 1];
+                            index[4] = data[i];
+                            index[5] = data[i + 1];
+                            index[6] = 0;
+                            index[7] = 0;
+                            index[8] = 0;
+                        }
+                    }
+                    if(row > 0 && row < r - 1)
+                    {
+                        if(col == 0)
+                        {
+                            index[0] = 0;
+                            index[1] = data[i - h];
+                            index[2] = data[i - h + 1];
+                            index[3] = 0;
+                            index[4] = data[i];
+                            index[5] = data[i + 1];
+                            index[6] = 0;  
+                            index[7] = data[i + h];
+                            index[1] = data[i + h + 1];
+                        }
+                        if(col == h - 1)
+                        {
+
+                            index[0] = data[i - h - 1];
+                            index[1] = data[i - h];
+                            index[2] = 0;
+                            index[3] = data[i - 1];
+                            index[4] = data[i];
+                            index[5] = data[i + 1];
+                            index[6] = data[i + h - 1];  
+                            index[7] = data[i + h];
+                            index[1] = 0;
+                        }
+                        if(col > 0 && col < h -1)
+                        {
+                            index[0] = data[i - h - 1];
+                            index[1] = data[i - h];
+                            index[2] = data[i - h + 1];
+                            index[3] = data[i - 1];
+                            index[4] = data[i];
+                            index[5] = data[i + 1];
+                            index[6] = data[i + h - 1];  
+                            index[7] = data[i + h];
+                            index[1] = data[i + h + 1];
+                        }
+                    }
+                                     
+                  //data[i] = (index[0]*key[0] + index[1]*key[1] + index[2]*key[2] +
+                   //       index[3]*key[3] + index[4]*key[4] + index[5]*key[5] + index[6]*key[6] +
+                   //index[7]*key[7] + index[8]*key[8])/ 13;
+                
+                    
+                
+                   data[i] = (index[0] + index[1] + index[2] +
+                            index[3] + index[4] + index[5] + index[6] +
+                            index[7] + index[8])/ 9;
+                   // data[i + 1] = (index[0] + index[1] + index[2] +
+                          //  index[3] + index[4] + index[5] + index[6] +
+                          //  index[7] + index[8])/ 9;
+                  //  data[i + 2] = (index[0] + index[1] + index[2] +
+                       //     index[3] + index[4] + index[5] + index[6] +
+                        //    index[7] + index[8])/ 9;
+                    //data[i + 3] = (index[0] + index[1] + index[2] +
+                            //index[3] + index[4] + index[5] + index[6] +
+                            //index[7] + index[8])/ 9;
+                    
+                   col ++;
+                  if((i + 1) % (h - 1) == 0 && i > 0)
+                  {
+                      row++;
+                      col = 0;
+                  }
+              }
+              context.putImageData(imageData, 0, 0);
+          }
+          
+            var p1 = 0.99;
+              var p2 = 0.99;
+              var p3 = 0.99;
+              var p4 = 0.99;
+              var er = 0; // extra red
+                var eg = 0; // extra green
+                var eb = 0;
+                var iBlurRate = 0;
+          function Blur() {
+              
+              var iSumOpacity, iSumRed, iSumGreen, iSumBlue;
+              var iCnt;
+              var iW = 0; // image width
+              var iH = 0; // image height
+              
+             var canvas = document.getElementById('outPutCanvas');
+              var context = canvas.getContext('2d');
+              var image = document.getElementById('myCanvas');
+              context.drawImage(image,0,0);
+              context.drawImage(image,image.width,0);
+              var imgd =context.getImageData(0,0, image.width, image.height);
+              iW = image.width;
+              iH = image.height;
+            var data = imgd.data;
+            for (var br = 0; br < iBlurRate; br += 1) {
+                for (var i = 0, n = data.length; i < n; i += 4) {
+                        var iMW = 4 * iW;
+                        iSumOpacity = iSumRed = iSumGreen = iSumBlue = 0;
+                        iCnt = 0;
+                        // data of close pixels (from all 8 surrounding pixels)
+                        var aCloseData = [
+                        i - iMW - 4, i - iMW, i - iMW + 4, // top pixels
+                        i - 4, i + 4, // middle pixels
+                        i + iMW - 4, i + iMW, i + iMW + 4 // bottom pixels
+                        ];
+                        // calculating Sum value of all close pixels
+                        for (var e = 0; e < aCloseData.length; e += 1) {
+                        if (aCloseData[e] >= 0 && aCloseData[e] <= data.length - 3) {
+                        iSumOpacity += data[aCloseData[e]];
+                        iSumRed += data[aCloseData[e] + 1];
+                        iSumGreen += data[aCloseData[e] + 2];
+                        iSumBlue += data[aCloseData[e] + 3];
+                        iCnt += 1;
+                        }
+                        }
+                        // apply average values
+                        data[i] = (iSumOpacity / iCnt)*p1+er;
+                        data[i+1] = (iSumRed / iCnt)*p2+eg;
+                        data[i+2] = (iSumGreen / iCnt)*p3+eb;
+                        data[i+3] = (iSumBlue / iCnt);
+                    }
+                }
+            context.putImageData(imgd, 0, 0);
+            }
+          function resetToBlur() {
+            p1 = 1;
+            p2 = 1;
+            p3 = 1;
+            er = eg = eb = 0;
+            iBlurRate = 1;
+            Blur();
+            }
+          
+            
+        </script>
+    </body>
+</html>

@@ -17,20 +17,55 @@ and open the template in the editor.
         </style>
     </head>
     <body>
-        <canvas id="myCanvas" width="500" height="400"></canvas>
-        <button onclick="resetToBlur()">gaussion filter</button>
-        <canvas id="outPutCanvas" width="500" height="400"></canvas>
+       
+        <div>
+            <canvas id="myCanvas" width="500" height="400"></canvas>
+            <canvas id="outPutCanvas" width="500" height="400"></canvas>
+        </div>
+        <div>
+             <input type="file" id="imageLoader" name="imageLoader"/>
+             <button onclick="resetToBlur()">gaussion filter</button>
+        </div>
+        
         <script type="text/javascript" src="assests/jquery-3.1.1.min.js"></script>
 	<script type="text/javascript" src="assests/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
         <script type="text/javascript">
+            var imageLoader = document.getElementById('imageLoader');
+            imageLoader.addEventListener('change', handleImage, false);
+            function handleImage(e) {
+                var canvas =document.getElementById('myCanvas')
+                var context = canvas.getContext("2d");
+                var image = new Image();
+                var reader = new FileReader();
+                reader.onload = function(event){
+                   image.src = event.target.result; 
+                }
+               
+                image.onload = function() {
+                var hRatio = canvas.width  / image.width    ;
+                var vRatio =  canvas.height / image.height  ;
+                var ratio;
+                if(hRatio < vRatio)
+                    ratio = hRatio;
+                else
+                    ratio = vRatio;
+                var centerShift_x = ( canvas.width - image.width*ratio ) / 2;
+                var centerShift_y = ( canvas.height - image.height*ratio ) / 2;
+                context.clearRect(0,0,canvas.width, canvas.height);
+                    context.drawImage(image, 0, 0, image.width, image.height, 
+                    centerShift_x,centerShift_y,image.width*ratio, image.height*ratio);
+                };
+                reader.readAsDataURL(e.target.files[0]);
+        };
+            
           window.onload = function() {
                 var canvas =document.getElementById('myCanvas')
                 var context = canvas.getContext("2d");
-                 var image = new Image();
-               image.src = "2.jpg";
+                var image = new Image();
+                image.src = "2.JPG";
                
                 image.onload = function() {
-                    var hRatio = canvas.width  / image.width    ;
+                var hRatio = canvas.width  / image.width    ;
                 var vRatio =  canvas.height / image.height  ;
                 var ratio;
                 if(hRatio < vRatio)
@@ -44,171 +79,9 @@ and open the template in the editor.
                     centerShift_x,centerShift_y,image.width*ratio, image.height*ratio);
                 };
             };
-          function chinhMau()
-          {
-              var canvas = document.getElementById('outPutCanvas');
-              var context = canvas.getContext('2d');
-              var image = document.getElementById('myCanvas');
-              context.drawImage(image,0,0);
-              context.drawImage(image,image.width,0);
-              var imageData =context.getImageData(0,0, image.width, image.height);
-              var data = imageData.data;
-              var key = ["0", "1", "1", "1", "4", "1", "1", "1", "1"];
-              var index = [];
-              var h = canvas.width * 4;
-              var r = canvas.height;
-              var row = 0;
-              var col = 0;
-              var vga1, vga2, vga3, vga4;
-              for(var i = 0 ;i < data.length; i+= 4)
-              {
-                    if(row == 0)
-                    {
-                    if(col == 0)
-                    {
-                        index[0] =0;
-                        index[1] =0;
-                        index[2] =0;
-                        index[3] =0;
-                        index[4] = data[i];
-                        index[5] = data[i + 1];
-                        index[6] = 0;
-                        index[7] = data[h];
-                        index[8] = data[h + 1];
-                    }
-                    if(col == h - 1)
-                    {
-                        index[0] =0;
-                        index[1] =0;
-                        index[2] =0;
-                        index[3] = data[i - 1];
-                        index[4] = data[i];
-                        index[5] = 0;
-                        index[6] = data[h + col -1];
-                        index[7] = data[2*h - 1];
-                        index[8] = data[0];
-                    }
-                    if(col > 0 && col < h - 1)
-                    {
-                        index[0] =0;
-                        index[1] =0;
-                        index[2] =0;
-                        index[3] = data[i -1];
-                        index[4] = data[i];
-                        index[5] = data[i + 1];
-                        index[6] = data[h + col - 1];
-                        index[7] = data[h + col];
-                        index[8] = data[h + col + 1];
-                    }
-                    }
-                    if(row == r - 1)
-                    {
-                        if(col == 0)
-                        {
-                            index[0] =0;
-                            index[1] = data[i - h];
-                            index[2] = data[i - h + 1];
-                            index[3] = 0;
-                            index[4] = data[i];
-                            index[5] = data[i+1];
-                            index[6] = 0;
-                            index[7] = 0;
-                            index[8] = 0;
-                        }
-                        if(col == h - 1)
-                        {
-                            index[0] =data[i - h - 1];
-                            index[1] = data[i - h];
-                            index[2] = 0;
-                            index[3] = data[i - 1];
-                            index[4] = data[i];
-                            index[5] = 0;
-                            index[6] = 0;
-                            index[7] = 0;
-                            index[8] = 0;
-                        }
-                        if(col > 0 && col < h - 1)
-                        {
-                            index[0] =data[i - h - 1];
-                            index[1] = data[i - h];
-                            index[2] = data[i - h + 1];
-                            index[3] = data[i - 1];
-                            index[4] = data[i];
-                            index[5] = data[i + 1];
-                            index[6] = 0;
-                            index[7] = 0;
-                            index[8] = 0;
-                        }
-                    }
-                    if(row > 0 && row < r - 1)
-                    {
-                        if(col == 0)
-                        {
-                            index[0] = 0;
-                            index[1] = data[i - h];
-                            index[2] = data[i - h + 1];
-                            index[3] = 0;
-                            index[4] = data[i];
-                            index[5] = data[i + 1];
-                            index[6] = 0;  
-                            index[7] = data[i + h];
-                            index[1] = data[i + h + 1];
-                        }
-                        if(col == h - 1)
-                        {
-
-                            index[0] = data[i - h - 1];
-                            index[1] = data[i - h];
-                            index[2] = 0;
-                            index[3] = data[i - 1];
-                            index[4] = data[i];
-                            index[5] = data[i + 1];
-                            index[6] = data[i + h - 1];  
-                            index[7] = data[i + h];
-                            index[1] = 0;
-                        }
-                        if(col > 0 && col < h -1)
-                        {
-                            index[0] = data[i - h - 1];
-                            index[1] = data[i - h];
-                            index[2] = data[i - h + 1];
-                            index[3] = data[i - 1];
-                            index[4] = data[i];
-                            index[5] = data[i + 1];
-                            index[6] = data[i + h - 1];  
-                            index[7] = data[i + h];
-                            index[1] = data[i + h + 1];
-                        }
-                    }
-                                     
-                  //data[i] = (index[0]*key[0] + index[1]*key[1] + index[2]*key[2] +
-                   //       index[3]*key[3] + index[4]*key[4] + index[5]*key[5] + index[6]*key[6] +
-                   //index[7]*key[7] + index[8]*key[8])/ 13;
-                
-                    
-                
-                   data[i] = (index[0] + index[1] + index[2] +
-                            index[3] + index[4] + index[5] + index[6] +
-                            index[7] + index[8])/ 9;
-                   // data[i + 1] = (index[0] + index[1] + index[2] +
-                          //  index[3] + index[4] + index[5] + index[6] +
-                          //  index[7] + index[8])/ 9;
-                  //  data[i + 2] = (index[0] + index[1] + index[2] +
-                       //     index[3] + index[4] + index[5] + index[6] +
-                        //    index[7] + index[8])/ 9;
-                    //data[i + 3] = (index[0] + index[1] + index[2] +
-                            //index[3] + index[4] + index[5] + index[6] +
-                            //index[7] + index[8])/ 9;
-                    
-                   col ++;
-                  if((i + 1) % (h - 1) == 0 && i > 0)
-                  {
-                      row++;
-                      col = 0;
-                  }
-              }
-              context.putImageData(imageData, 0, 0);
-          }
+            
+            
+          
           
             var p1 = 0.99;
               var p2 = 0.99;
@@ -227,6 +100,7 @@ and open the template in the editor.
               
              var canvas = document.getElementById('outPutCanvas');
               var context = canvas.getContext('2d');
+              context.clearRect(0, 0, canvas.width, canvas.height);
               var image = document.getElementById('myCanvas');
               context.drawImage(image,0,0);
               context.drawImage(image,image.width,0);

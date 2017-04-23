@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <video id="videocanvas" style="display:none;">
+            <source src="1.mp4" type="video/mp4">
+        </video>
+        <canvas id="canvas" width="500" height="400"></canvas>
+        <canvas id="canvas2" width="500" height="400"></canvas>
+        <script type="text/javascript">
+            var canvas = document.getElementById("canvas");
+            var context = canvas.getContext("2d");
+            var canvas2 = document.getElementById("canvas2");
+            var context2 = canvas2.getContext("2d");
+            var video = document.getElementById("videocanvas");
+            window.onload = function()
+            {
+                 
+                 setTimeout(function() {
+			video.play();
+		}, 5);
+                update1();
+            }
+            function update1(){
+                var hRatio = canvas.width  / video.videoWidth    ;
+                var vRatio =  canvas.height / video.videoHeight  ;
+                var ratio;
+                if(hRatio < vRatio)
+                    ratio = hRatio;
+                else
+                    ratio = vRatio;
+                var centerShift_x = ( canvas.width - video.videoWidth*ratio ) / 2;
+                var centerShift_y = ( canvas.height - video.videoHeight*ratio ) / 2;
+                context.drawImage(video,0,0,video.videoWidth,video.videoHeight,
+                centerShift_x,centerShift_y,video.videoWidth*ratio, video.videoHeight*ratio);
+                var apx = context.getImageData(0,0,canvas.width, canvas.height);
+                resetToBlur(apx);
+                setTimeout(function() {
+			update1();
+		}, 0);        
+          }
+          
+          var p1 = 0.99;
+              var p2 = 0.99;
+              var p3 = 0.99;
+              var p4 = 0.99;
+              var er = 0; // extra red
+                var eg = 0; // extra green
+                var eb = 0;
+                var iBlurRate = 0;
+          function Blur(imgd) {
+              
+              var iSumOpacity, iSumRed, iSumGreen, iSumBlue;
+              var iCnt;
+              var iW = 0; // image width
+              var iH = 0; // image height
+              
+             
+            var data = imgd.data;
+            for (var br = 0; br < iBlurRate; br += 1) {
+                for (var i = 0, n = data.length; i < n; i += 4) {
+                        var iMW = 4 * iW;
+                        iSumOpacity = iSumRed = iSumGreen = iSumBlue = 0;
+                        iCnt = 0;
+                        // data of close pixels (from all 8 surrounding pixels)
+                        var aCloseData = [
+                        i - iMW - 4, i - iMW, i - iMW + 4, // top pixels
+                        i - 4, i + 4, // middle pixels
+                        i + iMW - 4, i + iMW, i + iMW + 4 // bottom pixels
+                        ];
+                        // calculating Sum value of all close pixels
+                        for (var e = 0; e < aCloseData.length; e += 1) {
+                        if (aCloseData[e] >= 0 && aCloseData[e] <= data.length - 3) {
+                        iSumOpacity += data[aCloseData[e]];
+                        iSumRed += data[aCloseData[e] + 1];
+                        iSumGreen += data[aCloseData[e] + 2];
+                        iSumBlue += data[aCloseData[e] + 3];
+                        iCnt += 1;
+                        }
+                        }
+                        // apply average values
+                        data[i] = (iSumOpacity / iCnt)*p1+er;
+                        data[i+1] = (iSumRed / iCnt)*p2+eg;
+                        data[i+2] = (iSumGreen / iCnt)*p3+eb;
+                        data[i+3] = (iSumBlue / iCnt);
+                    }
+                }
+            context2.putImageData(imgd, 0, 0);
+            }
+          function resetToBlur(imgd) {
+            p1 = 1;
+            p2 = 1;
+            p3 = 1;
+            er = eg = eb = 0;
+            iBlurRate = 1;
+            Blur(imgd);
+            }
+         
+        </script>
+    </body>
+</html>
